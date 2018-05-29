@@ -1,0 +1,82 @@
+{
+	"AWSTemplateFormatVersion" : "2010-09-09",
+	"Description" : "A simple EC2 instance",
+	
+	"Parameters": {
+		"KeyName": {
+			"Description": "The EC2 Key Pair to allow SSH access to the instance",
+			"Type": "AWS::EC2::KeyPair::KeyName"
+		}, 
+		"VpcId" : {
+			"Description" : "The VPC Id to where this instance is being created",
+			"Type" : "AWS::EC2::VPC::Id"
+		},
+		"SubnetId" : {
+			"Description" : "Subnet to put in instance", 
+			"Type" : "AWS::EC2::Subnet::Id"
+		},
+		"InstanceType": {
+			"Description": "Enter t2.nano, t2.micro, t2.small, t2.medium, t2.large or m1.xlarge. Default is t2.micro",
+			"Type": "String",
+			"Default": "t2.micro",
+            "AllowedValues": ["t2.nano","t2.micro","t2.small","t2.medium","t2.large","m1.xlarge", "m5.xlarge"],
+			"ConstraintDescription" : "must be a valid EC2 instance type."
+        },
+		"AZ" : {
+			"Description": "Availability Zone name. Default is eu-west-1a",
+			"Default" : "eu-west-1a",
+			"Type" : "AWS::EC2::AvailabilityZone::Name"
+		}, 
+		"ImageId" : {
+			"Description": "AMI ID. Default is ami-3bfab942",
+			"Default" : "ami-3bfab942", 
+			"Type" : "AWS::EC2::Image::Id"
+			},
+		"SGId" : {
+			"Description": "Security Group ID. Default is sg-dbf36b",
+			"Default" : "sg-dbf36b",
+			"Type" : "AWS::EC2::SecurityGroup::Id"
+		}
+	},
+	"Resources" : {
+		"Instance" : {
+			"Type" :  "AWS::EC2::Instance",
+			"Properties" : {
+				"InstanceType" : {
+					"Ref" : "InstanceType"
+				},
+				"ImageId" : {
+					"Ref" : "ImageId"
+				},
+				"AvailabilityZone" : { 
+					"Ref" : "AZ"
+				},
+				"KeyName": {
+					"Ref": "KeyName"
+				},
+				"SubnetId": {
+					"Ref": "SubnetId"
+				},
+				"SecurityGroupIds": [
+                    {
+                        "Ref": "SGId"
+                    }
+                ],
+				"Tags": [
+					{"Key" : "Owner" , "Value" : "lidia.djennane"},
+					{"Key" : "Name" , "Value" : "LinuxLi"}
+				]
+			}
+		}
+	},	
+	"Outputs": {
+		"InstanceId":{
+			"Description": "InstanceId of the newly created EC2 instance", 
+			"Value": { "Ref":  "Instance"}
+		},
+		"AZ":{
+			"Description": "Availability Zone of the newly created EC2 instance", 
+			"Value": { "Fn::GetAtt" : ["Instance","AvailabilityZone"]}
+		}
+	}
+}
